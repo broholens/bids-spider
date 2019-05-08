@@ -12,7 +12,7 @@ keywords = ['大学', '学校', '招聘']
 
 def make_csv_handler(filename):
     """创建并返回csv句柄"""
-    f_result = open(result_filename, 'a+', newline='')
+    f_result = open(filename, 'a+', newline='')
     return csv.writer(f_result)
 
 result_filename = 'result.csv'
