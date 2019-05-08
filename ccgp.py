@@ -106,7 +106,7 @@ def get_all_tender_urls(start_page=1, end_page=300):
 
 def filter_tender(url):
     """筛选招标公告,存入csv文件"""
-    resp = requests.get(url, headers={'User-Agent': str(ua.random)})
+    resp = requests.get(url, headers={'User-Agent': str(ua.random)}, timeout=5)
     h = html2text.HTML2Text()
     h.ignore_links = True
     h.ignore_images = True
@@ -126,7 +126,7 @@ def load_urls(filename):
     return urls
 
 
-def save_legal_tender_urls():
+def _save_legal_tender_urls():
     """存储所有期望的招标url"""
     urls = load_urls(urls_filename)
     passed_urls = load_urls(checked_filename)
@@ -136,7 +136,17 @@ def save_legal_tender_urls():
         url = filter_tender(url)
         if url:
             print('{}/{} {}'.format(index, len_urls, url))
+    return True
 
+def save_legal_tender_urls():
+    """请求达到速率 重新加载"""
+    while 1:
+        try:
+            result = _save_legal_tender_urls()
+            if result is True:
+                break
+        except:
+            pass
 
 def main():
     get_all_tender_urls()
