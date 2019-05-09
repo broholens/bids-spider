@@ -8,7 +8,8 @@ from fake_useragent import UserAgent
 
 ua = UserAgent()
 
-keywords = ['大学', '学校', '招聘']
+# 关键词，使用
+keywords = ['大学 招聘', '学校 招聘']
 
 def make_csv_handler(filename):
     """创建并返回csv句柄"""
@@ -112,9 +113,15 @@ def filter_tender(url):
     h.ignore_images = True
     text = h.handle(resp.text)
     checked_handler.writerow([url])
-    if any([i in text for i in keywords]) is True:
-        result_handler.writerow([url])
-        return url
+    # 多关键词过滤
+    for i in keywords:
+        flag = []
+        for j in i.split():
+            _flag = True if j in text else False
+            flag.append(_flag)
+        if all(flag) is True:
+            result_handler.writerow([url])
+            return url
 
 def load_urls(filename):
     """从csv文件中加载数据并去重，返回set"""
