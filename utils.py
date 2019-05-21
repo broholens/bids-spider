@@ -88,9 +88,14 @@ class Parser:
             last_page = re.findall(last_page, html)[0]
         return int(last_page.split('=')[-1])
 
-    def get_tender_urls(self, page, url_xp, prefix=''):
+    def get_tender_urls(self, page, url_xp, prefix='', post=False, data=None):
         """在页面中查找招标链接"""
-        tree = self.url2tree(page)
+        if post is False:
+            tree = self.url2tree(page)
+        else:
+            resp = self.post(page, data=data)
+            html = self.resp2x(resp)
+            tree = self.html2tree(html)
         if tree is None:
             return
         urls = []
