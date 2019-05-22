@@ -75,8 +75,20 @@ class Parser:
         h.ignore_images = True
         return h.handle(self.resp2x(resp))
 
-    def get_total_page(self, url, last_page, xp=True):
+    def get_total_page_with_json(self, url, key, divide_by):
+        """json格式获取总数量，然后除以每页的数量得到页数"""
+        resp = self.get(url)
+        data = self.resp2x(resp, True)
+        total_count = int(data.get(key))
+        d, m = divmod(total_count, divide_by)
+        if m == 0:
+            return d
+        return d + 1
+
+    def get_total_page(self, url, last_page='', xp=True, divide_by=20, total_count_key=''):
         """从初始url获取总页数"""
+        if total_count_key:
+            return self.get_total_page_with_json(url, total_count_key, divide_by)
         resp = self.get(url)
         html = self.resp2x(resp)
         if html is None:
@@ -88,8 +100,15 @@ class Parser:
             last_page = re.findall(last_page, html)[0]
         return int(last_page.split('=')[-1])
 
-    def get_tender_urls(self, page, url_xp, prefix='', post=False, data=None):
+    def get_bid_urls_with_json(self, page, url_f, keys):
+        resp = self.get(page)
+        data = self.resp2x(resp, True)
+        # TODO:怎样让程序知道数据结构有几级
+
+    def get_bid_urls(self, page, url_xp='', prefix='', post=False, data=None, url_f='', keys=[]):
         """在页面中查找招标链接"""
+        if url_f:
+            return self.get_bid_urls_with_json(page, url_f, keys)
         if post is False:
             tree = self.url2tree(page)
         else:
