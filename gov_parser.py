@@ -13,8 +13,10 @@ class Bid:
         self.url_prefix = kwargs.get('url_prefix', '')
         self.total_page = kwargs.get('total_page')
         self.data = kwargs.get('data')
-        self.key_page_no = kwargs.get('key_page_no')
+        self.page_no_key = kwargs.get('page_no_key')
         self.post_url = kwargs.get('post_url')
+        self.divide_by = kwargs.get('divide_by')
+        self.total_count_key = kwargs.get('total_count_key')
         self.parser = Parser(decode=self.decode)
 
     def get_info(self):
@@ -31,13 +33,13 @@ class Bid:
         pages = [self.page_f.format(i) for i in range(1, self.total_page)]
         for page in pages:
             print(page)
-            urls = self.parser.get_tender_urls(page, self.url_xp, self.url_prefix)
+            urls = self.parser.get_bid_urls(page, self.url_xp, self.url_prefix)
             self.parser.save_text(urls)
 
     def post_data(self):
         """post方法获取每一页信息"""
         for i in range(1, self.total_page+1):
             print(self.post_url, i)
-            self.data.update({self.key_page_no: i})
-            urls = self.parser.get_tender_urls(self.post_url, self.url_xp, self.url_prefix, True, self.data)
+            self.data.update({self.page_no_key: i})
+            urls = self.parser.get_bid_urls(self.post_url, self.url_xp, self.url_prefix, True, self.data)
             self.parser.save_text(urls)
