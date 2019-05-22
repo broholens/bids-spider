@@ -38,7 +38,7 @@ sites = [
     #     'post_url': 'http://www.ccgp-tianjin.gov.cn/portal/topicView.do',
     #     'url_xp': '//ul[@class="dataList"]/li/a/@href',
     #     'url_prefix': 'http://www.ccgp-tianjin.gov.cn',
-    #     'key_page_no': 'page',
+    #     'page_no_key': 'page',
     #     'data': {
     #         'method': 'view',
     #         'id': 1665,
@@ -53,7 +53,7 @@ sites = [
     #     'post_url': 'http://www.ccgp-tianjin.gov.cn/portal/topicView.do',
     #     'url_xp': '//ul[@class="dataList"]/li/a/@href',
     #     'url_prefix': 'http://www.ccgp-tianjin.gov.cn',
-    #     'key_page_no': 'page',
+    #     'page_no_key': 'page',
     #     'data': {
     #         'method': 'view',
     #         'id': 1664,
@@ -62,4 +62,14 @@ sites = [
     #         'st': 1
     #     },
     # },
+    {
+        'start_url': 'https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=50',
+        'page_f': 'https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi={}&ps=50',
+        'last_page_xp': 'size: (\d.*?),',
+        'xp_page': False,
+        'url_xp': '//ul[@class="vT-srch-result-list-bid"]/li/a/@href',
+        'divide_by': 50,
+        'total_count_key': 'total',
+
+    },
 ]
