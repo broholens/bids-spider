@@ -62,7 +62,7 @@ class BaseCrawler:
     def _execute_by_new_page(self, context, url, func, *args, **kwargs):
         with context.new_page() as page:
             page.goto(url, wait_until="domcontentloaded")
-            func(page, *args, **kwargs)
+            return func(page, *args, **kwargs)
 
     @staticmethod
     def _random_sleep(_min=1, _max=60):
@@ -75,7 +75,9 @@ class BaseCrawler:
             return
         data = [asdict(tender) for tender in self.tenders.values()]
         file_name = str(datetime.now()).replace(' ', '_').replace('-', '_').replace(':', '_').replace('.', '_')
-        pd.DataFrame(data).to_excel(f"{self.region}_{file_name}.xlsx")
+        file_name = f"{self.region}_{file_name}.xlsx"
+        logger.info(f"Save tenders to {file_name}")
+        pd.DataFrame(data).to_excel(file_name)
 
 
 if __name__ == '__main__':
