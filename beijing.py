@@ -5,7 +5,7 @@ from base_crawler import Tender, BaseCrawler, logger
 
 class BeiJing(BaseCrawler):
     def __init__(self):
-        super().__init__("beijing", max_page_num=148)
+        super().__init__("beijing", max_page_num=140)
         self.page_url = "http://www.ccgp-beijing.gov.cn/xxgg/sjxxgg/A002004001index_{}.htm"
         self.tenders = {}
 
@@ -18,12 +18,11 @@ class BeiJing(BaseCrawler):
 
     def _crawl_one_page(self, context, page_url):
         logger.info(f"start to crawl: {page_url}")
-        self._execute_by_new_page(context, page_url, self.get_one_page_titles)
-        for url, tender in self.tenders.items():
-            with context.new_page() as page:
-                tender.html = self.parse_detail(page, url)
-                self.tenders[url] = tender
-                self._random_sleep(_max=30)
+        tenders = self._execute_by_new_page(context, page_url, self.get_one_page_titles)
+        for url, tender in tenders.items():
+            tender.html = self._execute_by_new_page(context, page_url, self.parse_detail, url)
+            self.tenders[url] = tender
+            self._random_sleep(_max=30)
         # 暂存临时文件
         self.save_tenders()
 
@@ -31,7 +30,8 @@ class BeiJing(BaseCrawler):
         li_elements = page.locator("li:has(a):has(span.datetime)").all()
         if not li_elements:
             logger.warning("No details found.")
-            return
+            return {}
+        tenders = {}
         # 4. 循环解析每个<li>的href、text、日期
         for li in li_elements:
             # 4.1 提取<a>标签的href和文本
@@ -44,8 +44,10 @@ class BeiJing(BaseCrawler):
             # 4.2 提取<span.datetime>的日期文本
             date_text = li.locator("span.datetime").inner_text()
             tender = Tender(self.region, href_full, a_text, date_text)
+            tenders[href_full] = tender
             logger.info(f"Found tender: {tender}")
             self.tenders[href_full] = tender
+        return tenders
 
     @staticmethod
     def parse_detail(page, url):
