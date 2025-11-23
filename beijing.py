@@ -1,4 +1,5 @@
-from base_crawler import Tender, BaseCrawler, logger
+from base_crawler import Tender, BaseCrawler
+from utils.log import logger
 
 
 class BeiJing(BaseCrawler):
