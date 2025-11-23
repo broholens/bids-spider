@@ -1,0 +1,5 @@
+pandas
+playwright
+loguru
+openpyxl
+elasticsearch<9.0.0
