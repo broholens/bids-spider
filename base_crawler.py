@@ -61,6 +61,7 @@ class BaseCrawler:
 
     def _execute_by_new_page(self, context, url, func, *args, **kwargs):
         with context.new_page() as page:
+            logger.info(f"start to goto: {url}")
             page.goto(url, wait_until="domcontentloaded")
             return func(page, *args, **kwargs)
 

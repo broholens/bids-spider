@@ -1,5 +1,3 @@
-import time
-
 from base_crawler import Tender, BaseCrawler, logger
 
 
@@ -7,20 +5,19 @@ class BeiJing(BaseCrawler):
     def __init__(self):
         super().__init__("beijing", max_page_num=140)
         self.page_url = "http://www.ccgp-beijing.gov.cn/xxgg/sjxxgg/A002004001index_{}.htm"
-        self.tenders = {}
 
     def _crawl(self, context):
         self._crawl_one_page(context, self.page_url.format(1))
 
     def _crawl_history(self, context):
-        for i in range(1, self.max_page_num):
+        for i in range(1, self.max_page_num + 1):
             self._crawl_one_page(context, self.page_url.format(i))
 
     def _crawl_one_page(self, context, page_url):
         logger.info(f"start to crawl: {page_url}")
         tenders = self._execute_by_new_page(context, page_url, self.get_one_page_titles)
         for url, tender in tenders.items():
-            tender.html = self._execute_by_new_page(context, page_url, self.parse_detail, url)
+            tender.html = self._execute_by_new_page(context, url, self.parse_detail)
             self.tenders[url] = tender
             self._random_sleep(_max=30)
         # 暂存临时文件
@@ -50,9 +47,7 @@ class BeiJing(BaseCrawler):
         return tenders
 
     @staticmethod
-    def parse_detail(page, url):
-        logger.info(f"start to parse detail: {url}")
-        page.goto(url, wait_until="domcontentloaded")
+    def parse_detail(page):
         return page.locator(".mainTextBox").inner_html()
 
 
