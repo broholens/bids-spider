@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import io
 import os
 from dataclasses import dataclass
@@ -42,6 +43,29 @@ class OCRResult:
             if text:
                 words.append(text.strip())
         return cls(words=words)
+
+
+class YunMaOCR:
+    def __init__(self, token: str):
+        self.token = token
+        self.url = "http://api.jfbym.com/api/YmServer/customApi"
+
+    def recognize(self, image_path: str) -> str | None:
+        with open(image_path, "rb") as f:
+            image_data = base64.b64encode(f.read()).decode()
+        data = {
+            "token": self.token,
+            "type": "10110",  # 通用数英（≤5位）
+            "image": image_data,
+        }
+        _headers = {
+            "Content-Type": "application/json"
+        }
+        response = requests.post(self.url, headers=_headers, json=data)
+        response = response.json()
+        if response.get("code") == 10000:
+            return response.get("data", {}).get("data", "")
+        return None
 
 
 class BaiduOCR:
