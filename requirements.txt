@@ -3,3 +3,9 @@ playwright
 loguru
 openpyxl
 elasticsearch<9.0.0
+baidu-aip
+pillow
+requests
+chardet
+pytesseract
+opencv-python
