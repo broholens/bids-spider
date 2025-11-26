@@ -24,8 +24,6 @@ class BeiJing(BaseCrawler):
             tender.crawl_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.tenders[url] = tender
             self._random_sleep(_max=30)
-        # 暂存临时文件
-        self.save_tenders_to_excel()
 
     def get_one_page_titles(self, page):
         li_elements = page.locator("li:has(a):has(span.datetime)").all()
@@ -56,4 +54,4 @@ class BeiJing(BaseCrawler):
 
 
 if __name__ == "__main__":
-    BeiJing().run(increment=False)
+    BeiJing().run(increment=True)

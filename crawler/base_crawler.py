@@ -38,6 +38,7 @@ class BaseCrawler:
                 else:
                     self._crawl_history(context)
         finally:
+            self.save_tenders_to_es()
             self.save_tenders_to_excel()
 
     def _crawl(self, context):
