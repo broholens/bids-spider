@@ -2,16 +2,13 @@
 抓取招标网站招标信息
 
 #### 目前支持的网站
-- [陕西省政府采购网][陕西省政府采购网] 
-
-[陕西省政府采购网]: http://www.ccgp-shaanxi.gov.cn/notice/list.do?noticetype=3&province=province
+- [北京][http://www.ccgp-beijing.gov.cn/xxgg/A002004index_1.htm] 
+- [天津][https://www.tjggzy.cn/announcementIndex] 
 
 #### 待支持列表
 ```
 黑龙江：https://hljcg.hlj.gov.cn/maincms-web/massageListPageHlj
 陕西省：https://www.ccgp-shaanxi.gov.cn/cms-sx/site/shanxi/xxgg/index.html?result=result
-北京：http://www.ccgp-beijing.gov.cn/xxgg/A002004index_1.htm
-天津：https://www.tjggzy.cn/transactionIndex?d=NXIEsg%2F0%2FKClb18yx1g2qxYIciaC1uyy9VONTvErltV3KlXBeYJhjakSSwrPElI6
 河北：https://szj.hebei.gov.cn/hbggfwpt/jydt/salesPlat.html
 陕西：http://www.ccgp-shanxi.gov.cn/site/category?parentId=138010&childrenCode=ZcyAnnouncement
 辽宁：http://www.ccgp-liaoning.gov.cn/portalindex?currentKey=pubAnnounce
