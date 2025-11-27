@@ -14,7 +14,7 @@ from utils.es import ESConnection
 class Tender:
     region: str
     href: str
-    text: str
+    title: str
     release_date: str = ''
     html: str = ''
     crawl_date: str = ''
@@ -26,9 +26,11 @@ class BaseCrawler:
         self.region = region
         self.max_page_num = max_page_num
         self.tenders = {}
+        self.exists_urls = set()
         self.es_conn = ESConnection()
 
     def run(self, increment=True):
+        self.exists_urls = self.get_exists_url_from_es()
         try:
             with sync_playwright() as p:
                 browser = p.chromium.launch(headless=False, args=['--start-maximized'])
@@ -67,13 +69,37 @@ class BaseCrawler:
         file_name = f"{self.region}_{file_name}.xlsx"
         logger.info(f"[{self.region}]Save tenders to {file_name}")
         pd.DataFrame(data).to_excel(file_name)
-    
+
+    def save_tender_to_es(self, tender):
+        logger.info(f"[{self.region}]Save {tender.title} tenders to Elasticsearch.")
+        self.es_conn.save_tender(tender)
+
     def save_tenders_to_es(self):
         if not self.tenders:
             logger.info(f"[{self.region}]Nothing to save.")
             return
         logger.info(f"[{self.region}]Save {len(self.tenders)} tenders to Elasticsearch.")
         self.es_conn.save_tenders_bulk(self.tenders.values())
+
+    def get_exists_url_from_es(self):
+        query_body = {
+            "query": {
+                "term": {
+                    "region": self.region
+                }
+            },
+            "sort": [
+                {
+                    "release_date": {
+                        "order": "desc"  # 按 release_date 降序排列
+                    }
+                }
+            ],
+            "_source": False,  # 只返回 href 字段，减少数据传输
+            "size": 10000  # 调整返回结果数量，根据你的数据量设置
+        }
+        data = self.es_conn.search_data(query_body) or set()
+        return set(i['_id'] for i in data)
 
 
 if __name__ == '__main__':

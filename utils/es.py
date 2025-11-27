@@ -19,7 +19,7 @@ TENDER_INDEX_BODY = {
         "properties": {
             "region": {"type": "keyword"},
             "href": {"type": "keyword"},
-            "text": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
+            "title": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
             "release_date": {"type": "keyword"},
             "crawl_date": {"type": "date", "format": "yyyy-MM-dd HH:mm:ss||strict_date_optional_time||epoch_millis"},
             "html": {"type": "text", "index": False},
@@ -120,7 +120,8 @@ class ESConnection:
     def delete_data(self, index_name, id):
         """删除数据"""
         try:
-            resp = self.es.delete(index=index_name, id=id)
+            client = self._client()
+            resp = client.delete(index=index_name, id=id)
             logger.info(f"delete data from {index_name} successfully, response: {resp}")
             return resp['_id']
         except Exception as e:
@@ -130,17 +131,20 @@ class ESConnection:
     def update_data(self, index_name, id, data):
         """更新数据"""
         try:
-            resp = self.es.update(index=index_name, id=id, doc=data)
+            client = self._client()
+            resp = client.update(index=index_name, id=id, doc=data)
             logger.info(f"update data in {index_name} successfully, response: {resp}")
             return resp['_id']
         except Exception as e:
             logger.error(f"update data in {index_name} failed: {e}")
             return False
     
-    def search_data(self, index_name, query):
+    def search_data(self, query, index_name=None):
         """搜索数据"""
         try:
-            result = self.es.search(index=index_name, body=query)
+            index_name = index_name or self.default_index
+            client = self._client()
+            result = client.search(index=index_name, body=query)
             logger.info(f"search data in {index_name} successfully, response: {result}")
             return result['hits']['hits']
         except Exception as e:
@@ -150,7 +154,8 @@ class ESConnection:
     def delete_index(self, index_name):
         """删除索引"""
         try:
-            resp = self.es.indices.delete(index=index_name)
+            client = self._client()
+            resp = client.indices.delete(index=index_name)
             logger.info(f"delete index {index_name} successfully, response: {resp}")
             return True
         except Exception as e:
@@ -160,7 +165,8 @@ class ESConnection:
     def close_connection(self):
         """关闭连接"""
         try:
-            self.es.close()
+            client = self._client()
+            client.close()
             logger.info("close connection successfully")
             return True
         except Exception as e:
@@ -181,7 +187,7 @@ class ESConnection:
             raise TypeError(f"Unsupported tender type: {type(tender)}")
         doc.setdefault("region", "")
         doc.setdefault("href", "")
-        doc.setdefault("text", "")
+        doc.setdefault("title", "")
         doc.setdefault("release_date", "")
         doc.setdefault("crawl_date", "")
         doc.setdefault("html", "")
@@ -246,10 +252,14 @@ if __name__ == "__main__":
     es = ESConnection()
     es.create_connection()
     es.test_connection()
-    es.create_index("test")
-    _id = es.insert_data("test", {"name": "test"})
-    es.update_data("test", _id, {"name": "test2"})
-    es.search_data("test", {"query": {"match_all": {}}})
-    es.delete_data("test", _id)
-    es.delete_index("test")
-    es.close_connection()
+    query_body = {
+        "query": {
+            "term": {
+                "region": "beijing"
+            }
+        },
+        "_source": False,  # 只返回 href 字段，减少数据传输
+        "size": 10000  # 调整返回结果数量，根据你的数据量设置
+    }
+    d = es.search_data("tenders", query_body)
+    print(d)
