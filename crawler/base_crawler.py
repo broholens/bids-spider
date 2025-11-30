@@ -5,6 +5,7 @@ import time
 
 import pandas as pd
 from playwright.sync_api import sync_playwright
+from playwright_stealth import Stealth
 
 from utils.log import logger
 from utils.es import ESConnection
@@ -32,14 +33,24 @@ class BaseCrawler:
     def run(self, increment=True):
         self.exists_urls = self.get_exists_url_from_es()
         try:
-            with sync_playwright() as p:
-                browser = p.chromium.launch(headless=False, args=['--start-maximized'])
-                context = browser.new_context(no_viewport=True)
+            with Stealth().use_sync(sync_playwright()) as p:
+                # 创建真正的浏览器实例，使用全局初始化脚本
+                browser = p.chromium.launch(
+                    headless=False,
+                    args=[
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-blink-features=AutomationControlled',
+                        '--start-maximized'
+                    ]
+                )
+                context = browser.new_context()
                 if increment:
                     self._crawl(context)
                 else:
                     self._crawl_history(context)
         finally:
+            ...
             self.save_tenders_to_es()
             self.save_tenders_to_excel()
 
@@ -48,6 +59,9 @@ class BaseCrawler:
 
     def _crawl_history(self, context):
         ...
+
+    def _get_crawl_date(self):
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def _execute_by_new_page(self, context, url, func, *args, **kwargs):
         with context.new_page() as page:

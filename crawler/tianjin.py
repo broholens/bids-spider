@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 
 from crawler.base_crawler import BaseCrawler, Tender
 from utils.log import logger
@@ -24,7 +23,7 @@ class TianJin(BaseCrawler):
             return
         tender = Tender(region=self.region, href=tender_id, title=data['responseData']['announcementName'],
                         release_date=data['responseData']['publishTime'], html=data['responseData']['noticeContent'],
-                        crawl_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                        crawl_date=self._get_crawl_date())
         self.save_tender_to_es(tender)
         self.tenders[tender_id] = tender
         logger.info(f"get tender details for {tender_id} success")

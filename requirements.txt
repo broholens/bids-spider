@@ -9,3 +9,4 @@ requests
 chardet
 pytesseract
 opencv-python
+playwright-stealth

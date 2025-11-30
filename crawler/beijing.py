@@ -21,7 +21,7 @@ class BeiJing(BaseCrawler):
         tenders = self._execute_by_new_page(context, page_url, self.get_one_page_titles)
         for url, tender in tenders.items():
             tender.html = self._execute_by_new_page(context, url, self.parse_detail)
-            tender.crawl_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            tender.crawl_date = self._get_crawl_date()
             self.tenders[url] = tender
             self._random_sleep(_max=30)
 
